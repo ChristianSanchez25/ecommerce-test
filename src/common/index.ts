@@ -7,3 +7,4 @@ export * from './interfaces/error.interface';
 export * from './interfaces/logger.interface';
 export * from './mappers/mapper';
 export * from './mappers/user.mapper';
+export * from './pipes/mongo-id.pipe';

@@ -10,6 +10,7 @@ import {
   LoginUseCase,
   RegisterUseCase,
   RenewUseCase,
+  UpdateUserUseCase,
 } from './application/use-cases';
 import { ENCRYPT, JWT, SERVICE_AUTH } from './domain/constants';
 import { AuthController } from './infrastructure/controllers/auth.controller';
@@ -47,6 +48,7 @@ import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
     LoginUseCase,
     RenewUseCase,
     ChangePasswordUseCase,
+    UpdateUserUseCase,
   ],
   exports: [JwtStrategy, JwtModule, PassportModule],
 })

@@ -1,23 +1,27 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserResponseDto } from 'src/users/application/dtos';
+import { MongoIdPipe } from '../../../common';
+import { UserResponseDto } from '../../../users/application/dtos';
+import { UserRole } from '../../../users/domain/enums';
 import {
   ChangePasswordDto,
   LoginResponseDto,
   LoginUserDto,
   RegisterResponseDto,
   RegisterUserDto,
+  UpdateUserDto,
 } from '../../application/dtos';
 import {
   ChangePasswordUseCase,
   LoginUseCase,
   RegisterUseCase,
   RenewUseCase,
+  UpdateUserUseCase,
 } from '../../application/use-cases';
 import { Auth, GetUser } from '../decorators';
 
@@ -29,6 +33,7 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly renewUseCase: RenewUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
+    private readonly updateUseCase: UpdateUserUseCase,
   ) {}
 
   @ApiOperation({ summary: 'Register user' })
@@ -60,6 +65,22 @@ export class AuthController {
     return await this.loginUseCase.execute(loginUserDto);
   }
 
+  @ApiOperation({ summary: 'Renew Token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token renewed successfully',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBearerAuth()
+  @Auth()
+  @Get('renew-token')
+  async renew(@GetUser() user: UserResponseDto): Promise<LoginResponseDto> {
+    return await this.renewUseCase.execute(user.email);
+  }
+
   @ApiOperation({ summary: 'Change Password User' })
   @ApiResponse({
     status: 200,
@@ -78,19 +99,22 @@ export class AuthController {
     return await this.changePasswordUseCase.execute(user, changePasswordDto);
   }
 
-  @ApiOperation({ summary: 'Renew Token' })
+  @ApiOperation({ summary: 'Activate and change role' })
   @ApiResponse({
     status: 200,
-    description: 'Token renewed successfully',
-    type: LoginResponseDto,
+    description: 'The user has been successfully updated.',
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 401, description: 'Not authenticated.' })
+  @ApiResponse({ status: 403, description: 'Not authorized.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @ApiBearerAuth()
-  @Auth()
-  @Get('renew-token')
-  async renew(@GetUser() user: UserResponseDto): Promise<LoginResponseDto> {
-    return await this.renewUseCase.execute(user.email);
+  @Auth(UserRole.ADMIN)
+  @Patch(':id')
+  async update(
+    @Param('id', MongoIdPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.updateUseCase.execute(id, updateUserDto);
   }
 }

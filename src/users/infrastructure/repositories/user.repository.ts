@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import {
   ProfileUserDto,
   RegisterUserDto,
+  UpdateUserDto,
 } from '../../../auth/application/dtos';
 import { UserMapper } from '../../../common';
 import { IUserRepository } from '../../application/interfaces';
@@ -87,6 +88,27 @@ export class UserRepository implements IUserRepository {
       return users.map((user) => UserMapper.toEntity(user));
     } catch (error) {
       throw new InternalServerErrorException(error, 'ERROR_FIND_ALL_USERS');
+    }
+  }
+
+  async update(id: string, data: UpdateUserDto): Promise<User> {
+    try {
+      const { role } = data;
+      const user = await this.userModel
+        .findByIdAndUpdate(
+          id,
+          {
+            ...data,
+            roles: [...role],
+          },
+          {
+            new: true,
+          },
+        )
+        .exec();
+      return UserMapper.toEntity(user);
+    } catch (error) {
+      throw new InternalServerErrorException(error, 'ERROR_UPDATE_USER');
     }
   }
 

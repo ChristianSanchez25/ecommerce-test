@@ -5,6 +5,7 @@ import {
   LoginResponseDto,
   LoginUserDto,
   RegisterUserDto,
+  UpdateUserDto,
 } from '../dtos';
 
 export interface IAuthService {
@@ -15,4 +16,5 @@ export interface IAuthService {
     user: UserResponseDto,
     passwordDto: ChangePasswordDto,
   ): Promise<boolean>;
+  updateUser(id: string, data: UpdateUserDto): Promise<User>;
 }

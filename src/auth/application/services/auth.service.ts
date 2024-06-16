@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ILogger, LOGGER_SERVICE } from '../../../common';
@@ -15,6 +16,7 @@ import {
   LoginResponseDto,
   LoginUserDto,
   RegisterUserDto,
+  UpdateUserDto,
 } from '../dtos';
 import { IAuthService, IEncrypt, IJwtService, JwtPayload } from '../interfaces';
 
@@ -39,7 +41,7 @@ export class AuthService implements IAuthService {
       ...data,
       password: this.encrypt.encrypt(data.password, 10),
     });
-    this.logger.log('AuthService', `User ${user.email} created`);
+    this.logger.log('AuthService', `User ${newUser.email} created`);
     return newUser;
   }
   async login(data: LoginUserDto): Promise<LoginResponseDto> {
@@ -86,6 +88,21 @@ export class AuthService implements IAuthService {
     );
     this.logger.log('AuthService', `User ${user.email} changed password`);
     return true;
+  }
+
+  async updateUser(id: string, data: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      this.logger.warn('AuthService', `User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    const updatedUser = await this.userRepository.update(id, {
+      ...data,
+      role: data.role ? [...data.role] : user.roles,
+    });
+
+    this.logger.log('AuthService', `User ${user.email} updated`);
+    return updatedUser;
   }
 
   private async getJWTToken(payload: JwtPayload) {
