@@ -1,8 +1,10 @@
 import { User } from 'src/users/domain/entities';
-import { ProfileDto } from '../dtos';
+import { PaginationDto } from '../../../common';
+import { UpdateProfileDto } from '../dtos';
 
 export interface IUserService {
   getUserById(id: string): Promise<User>;
-  getUsers(): Promise<User[]>;
-  updateProfile(id: string, data: ProfileDto): Promise<User>;
+  getUsers(pagination: PaginationDto): Promise<User[]>;
+  getTotalUsers(): Promise<number>;
+  updateProfile(id: string, data: UpdateProfileDto): Promise<User>;
 }

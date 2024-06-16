@@ -1,1 +1,2 @@
 export const REPOSITORY_USER = 'REPOSITORY_USER';
+export const SERVICE_USER = 'SERVICE_USER';

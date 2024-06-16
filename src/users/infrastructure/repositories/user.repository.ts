@@ -1,12 +1,9 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  ProfileUserDto,
-  RegisterUserDto,
-  UpdateUserDto,
-} from '../../../auth/application/dtos';
-import { UserMapper } from '../../../common';
+import { UpdateProfileDto } from 'src/users/application/dtos';
+import { RegisterUserDto, UpdateUserDto } from '../../../auth/application/dtos';
+import { Order, PaginationDto, UserMapper } from '../../../common';
 import { IUserRepository } from '../../application/interfaces';
 import { User } from '../../domain/entities';
 import { UserDocument } from '../schemas/user.schema';
@@ -57,7 +54,7 @@ export class UserRepository implements IUserRepository {
       throw new InternalServerErrorException(error, 'ERROR_FIND_USER_BY_ID');
     }
   }
-  async updateProfile(id: string, data: ProfileUserDto): Promise<User> {
+  async updateProfile(id: string, data: UpdateProfileDto): Promise<User> {
     try {
       const user = await this.userModel
         .findByIdAndUpdate(
@@ -82,12 +79,33 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(paginationDto: PaginationDto): Promise<User[]> {
+    const {
+      limit = 10,
+      page = 1,
+      sort = 'updatedAt',
+      order = Order.DESC,
+    } = paginationDto;
+    const sortOrder = order === Order.ASC ? 1 : -1;
     try {
-      const users = await this.userModel.find().exec();
+      const users = await this.userModel
+        .find()
+        .sort({ [sort]: sortOrder })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec();
+
       return users.map((user) => UserMapper.toEntity(user));
     } catch (error) {
       throw new InternalServerErrorException(error, 'ERROR_FIND_ALL_USERS');
+    }
+  }
+
+  async totalUsers(): Promise<number> {
+    try {
+      return this.userModel.countDocuments().exec();
+    } catch (error) {
+      throw new InternalServerErrorException(error, 'ERROR_TOTAL_USERS');
     }
   }
 
