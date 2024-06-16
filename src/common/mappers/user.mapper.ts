@@ -1,4 +1,5 @@
-import { User, UserProfile, UserRole } from '../../users/domain/entities';
+import { User, UserProfile } from '../../users/domain/entities';
+import { UserRole } from '../../users/domain/enums';
 import { UserDocument } from '../../users/infrastructure/schemas/user.schema';
 
 export class UserMapper {

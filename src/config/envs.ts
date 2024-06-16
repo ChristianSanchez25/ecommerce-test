@@ -2,7 +2,9 @@ import 'dotenv/config';
 import * as joi from 'joi';
 
 interface EnvVars {
+  PORT: number;
   STAGE: string;
+  VERSION: string;
   RABBITMQ_HOST: string;
   RABBITMQ_PORT: number;
   DB_NAME: string;
@@ -15,7 +17,9 @@ interface EnvVars {
 
 const envsSchema = joi
   .object({
+    PORT: joi.number().required(),
     STAGE: joi.string().required(),
+    VERSION: joi.string().required(),
     DB_NAME: joi.string().required(),
     DB_PASS: joi.string().required(),
     DB_USER: joi.string().required(),
@@ -36,7 +40,9 @@ if (error) {
 const envVars: EnvVars = value;
 
 export const envs = {
+  port: envVars.PORT,
   stage: envVars.STAGE,
+  version: envVars.VERSION,
   mongo: {
     auth: {
       name: envVars.DB_NAME,
