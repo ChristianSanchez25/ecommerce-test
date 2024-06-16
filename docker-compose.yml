@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  ecommerce-db:
+    image: mongo:4.4
+    container_name: ecommerce_db
+    ports:
+      - ${DB_PORT}:27017
+    volumes:
+      - ./mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
+      
