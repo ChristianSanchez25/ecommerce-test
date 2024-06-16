@@ -3,7 +3,13 @@ import { LoggerAdapter } from './adapters/logger.adapter';
 import { LOGGER_SERVICE } from './constants/common.constants';
 
 @Module({
-  providers: [LoggerAdapter],
+  providers: [
+    LoggerAdapter,
+    {
+      provide: LOGGER_SERVICE,
+      useClass: LoggerAdapter,
+    },
+  ],
   exports: [
     LoggerAdapter,
     {
