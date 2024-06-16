@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginResponseDto {
   @ApiProperty({
-    example: 'ANCAKSBFDFGBWDIFBSD48186',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9fsfdsdfdsfsfsdfsdvsdvfbzY',
     description: 'user token',
   })
   token: string;
@@ -10,7 +10,7 @@ export class LoginResponseDto {
 
 export class RegisterResponseDto {
   @ApiProperty({
-    example: 'IDFGBWDIFBSD4818',
+    example: '60f7b3b3b3f3f3f3f3f3f3f3',
     description: 'user id',
   })
   id: string;
