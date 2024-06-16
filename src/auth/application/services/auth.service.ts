@@ -5,11 +5,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ILogger, LOGGER_SERVICE } from '../../../common';
+import { UserResponseDto } from '../../../users/application/dtos';
 import { IUserRepository } from '../../../users/application/interfaces';
 import { REPOSITORY_USER } from '../../../users/domain/constants';
 import { User } from '../../../users/domain/entities';
 import { ENCRYPT, JWT } from '../../domain/constants';
-import { LoginResponseDto, LoginUserDto, RegisterUserDto } from '../dtos';
+import {
+  ChangePasswordDto,
+  LoginResponseDto,
+  LoginUserDto,
+  RegisterUserDto,
+} from '../dtos';
 import { IAuthService, IEncrypt, IJwtService, JwtPayload } from '../interfaces';
 
 @Injectable()
@@ -59,6 +65,27 @@ export class AuthService implements IAuthService {
     return {
       token: await this.getJWTToken({ id: user.id }),
     };
+  }
+
+  async changePassword(
+    user: UserResponseDto,
+    passwordDto: ChangePasswordDto,
+  ): Promise<boolean> {
+    const userEntity = await this.userRepository.findById(user.id);
+    if (!userEntity) {
+      this.logger.warn('AuthService', `User with id ${user.id} not found`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!this.encrypt.compare(passwordDto.oldPassword, userEntity.password)) {
+      this.logger.warn('AuthService', `User ${user.email} changed password`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    await this.userRepository.updatePassword(
+      user.id,
+      this.encrypt.encrypt(passwordDto.newPassword, 10),
+    );
+    this.logger.log('AuthService', `User ${user.email} changed password`);
+    return true;
   }
 
   private async getJWTToken(payload: JwtPayload) {

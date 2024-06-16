@@ -6,6 +6,7 @@ import { envs } from '../config';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './application/services/auth.service';
 import {
+  ChangePasswordUseCase,
   LoginUseCase,
   RegisterUseCase,
   RenewUseCase,
@@ -45,6 +46,7 @@ import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
     RegisterUseCase,
     LoginUseCase,
     RenewUseCase,
+    ChangePasswordUseCase,
   ],
   exports: [JwtStrategy, JwtModule, PassportModule],
 })

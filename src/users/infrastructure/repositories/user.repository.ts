@@ -89,4 +89,29 @@ export class UserRepository implements IUserRepository {
       throw new InternalServerErrorException(error, 'ERROR_FIND_ALL_USERS');
     }
   }
+
+  async updatePassword(id: string, password: string): Promise<User> {
+    try {
+      const user = await this.userModel
+        .findByIdAndUpdate(
+          id,
+          {
+            password,
+          },
+          {
+            new: true,
+          },
+        )
+        .exec();
+      if (!user) {
+        return null;
+      }
+      return UserMapper.toEntity(user);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error,
+        'ERROR_UPDATE_PASSWORD_USER',
+      );
+    }
+  }
 }

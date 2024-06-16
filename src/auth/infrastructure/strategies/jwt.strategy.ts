@@ -2,10 +2,11 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from 'src/auth/application/interfaces';
+import { UserMapper } from 'src/common';
 import { envs } from 'src/config';
+import { UserResponseDto } from 'src/users/application/dtos';
 import { IUserRepository } from 'src/users/application/interfaces';
 import { REPOSITORY_USER } from 'src/users/domain/constants';
-import { User } from 'src/users/domain/entities';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -18,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
+  async validate(payload: JwtPayload): Promise<UserResponseDto> {
     const { id } = payload;
     const user = await this.userRepository.findById(id);
     if (!user) {
@@ -27,6 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user.isActive) {
       throw new UnauthorizedException('User is not active');
     }
-    return user;
+    return UserMapper.toDto(user);
   }
 }
