@@ -4,13 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from 'src/orders/domain/enums';
 import { ILogger, LOGGER_SERVICE } from '../../../common';
 import { IProductRepository } from '../../../products/application/interfaces';
 import { REPOSITORY_PRODUCT } from '../../../products/domain/constants';
 import { Product } from '../../../products/domain/entities';
 import { REPOSITORY_ORDER } from '../../domain/constants';
 import { Order } from '../../domain/entities';
+import { OrderStatus } from '../../domain/enums';
 import { CreateOrderDto, PaginationOrderDto } from '../dtos';
 import { IOrderRepository, IOrderService } from '../interfaces';
 
@@ -31,32 +31,34 @@ export class OrderService implements IOrderService {
     const productsIds = createOrder.items.map((item) => item.productId);
     const products = await this.productRepository.validateProducts(productsIds);
 
-    const totalAmount = createOrder.items.reduce((acc, item) => {
-      const price = products.find(
-        (product) => product.id === item.productId,
-      ).price;
-      return price * item.quantity + acc;
-    }, 0);
+    const productsMap = new Map(
+      products.map((product) => [product.id, product]),
+    );
 
-    const totalItems = createOrder.items.reduce((acc, item) => {
-      return acc + item.quantity;
-    }, 0);
+    let totalAmount = 0;
+    let totalItems = 0;
 
     for (const item of createOrder.items) {
-      const product = products.find((product) => product.id === item.productId);
+      const product = productsMap.get(item.productId);
       this.validateQuantity(product, item.quantity);
+      totalAmount += product.price * item.quantity;
+      totalItems += item.quantity;
     }
+
+    const orderItems = createOrder.items.map((item) => {
+      const product = productsMap.get(item.productId);
+      return {
+        product: item.productId,
+        quantity: item.quantity,
+        price: product.price,
+      };
+    });
 
     const order = await this.orderRepository.createOrder(
       new Order(
         '',
         userId,
-        createOrder.items.map((item) => ({
-          product: item.productId,
-          quantity: item.quantity,
-          price: products.find((product) => product.id === item.productId)
-            .price,
-        })),
+        orderItems,
         OrderStatus.PENDING,
         totalAmount,
         totalItems,
@@ -64,9 +66,10 @@ export class OrderService implements IOrderService {
     );
 
     for (const item of createOrder.items) {
-      const product = products.find((product) => product.id === item.productId);
-      this.updateProductsQuantity(product, item.quantity);
+      const product = productsMap.get(item.productId);
+      await this.updateProductsQuantity(product, item.quantity);
     }
+
     this.logger.log('OrderService', `Order with id ${order.id} created`);
     return order;
   }
@@ -95,8 +98,11 @@ export class OrderService implements IOrderService {
     return await this.orderRepository.findAll(pagination);
   }
 
-  async findOrdersByUser(userId: string): Promise<Order[]> {
-    const orders = await this.orderRepository.findByUser(userId);
+  async findOrdersByUser(
+    userId: string,
+    pagination: PaginationOrderDto,
+  ): Promise<Order[]> {
+    const orders = await this.orderRepository.findByUser(userId, pagination);
     if (orders.length === 0) {
       throw new NotFoundException(
         `Orders for user with id ${userId} not found`,

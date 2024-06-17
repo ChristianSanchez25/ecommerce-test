@@ -4,6 +4,6 @@ import { PaginationOrderDto } from '../dtos';
 export interface IOrderRepository {
   createOrder(order: Order): Promise<Order>;
   findAll(pagination: PaginationOrderDto): Promise<Order[]>;
-  findByUser(userId: string): Promise<Order[]>;
+  findByUser(userId: string, pagination: PaginationOrderDto): Promise<Order[]>;
   totalOrders(status?: string): Promise<number>;
 }

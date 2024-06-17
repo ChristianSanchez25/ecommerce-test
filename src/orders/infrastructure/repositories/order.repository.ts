@@ -41,11 +41,17 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async findByUser(userId: string): Promise<Order[]> {
+  async findByUser(
+    userId: string,
+    pagination: PaginationOrderDto,
+  ): Promise<Order[]> {
+    const { limit = 10, page = 1 } = pagination;
     try {
       const orders = await this.orderModel
         .find({ userId })
         .sort({ updatedAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
         .exec();
       if (!orders) {
         return [];

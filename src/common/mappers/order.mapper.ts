@@ -1,3 +1,4 @@
+import { OrderResponseDto } from '../../orders/application/dtos';
 import { Order } from '../../orders/domain/entities';
 import { OrderDocument } from '../../orders/infrastructure/schemas';
 
@@ -17,5 +18,22 @@ export class OrderMapper {
       orderDocument.createdAt,
       orderDocument.updatedAt,
     );
+  }
+
+  static toDto(order: Order): OrderResponseDto {
+    return {
+      id: order.id,
+      userId: order.user,
+      items: order.items.map((item) => ({
+        productId: item.product,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      totalAmount: order.totalAmount,
+      totalItems: order.totalItems,
+      status: order.status,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    };
   }
 }
