@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ILogger, LOGGER_SERVICE, PaginationDto } from 'src/common';
-import { REPOSITORY_USER } from 'src/users/domain/constants';
-import { User } from 'src/users/domain/entities';
+import { ILogger, LOGGER_SERVICE, PaginationDto } from '../../../common';
+import { REPOSITORY_USER } from '../../domain/constants';
+import { User } from '../../domain/entities';
 import { UpdateProfileDto } from '../dtos';
 import { IUserRepository, IUserService } from '../interfaces';
 

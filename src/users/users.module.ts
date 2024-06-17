@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
-import { CommonModule } from 'src/common';
+import { CommonModule } from '../common';
 import { UserService } from './application/services/user.service';
 import {
   GetUserUseCase,
