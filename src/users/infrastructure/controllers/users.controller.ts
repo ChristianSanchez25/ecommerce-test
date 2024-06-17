@@ -7,7 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth, GetUser } from '../../../auth/infrastructure/decorators';
-import { MongoIdPipe, Order, PaginationDto } from '../../../common';
+import { ErrorDto, MongoIdPipe, Order, PaginationDto } from '../../../common';
 import {
   ListUserResponseDto,
   UpdateProfileDto,
@@ -35,9 +35,13 @@ export class UsersController {
     description: 'The user has been successfully found.',
     type: UserResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Not authenticated.' })
-  @ApiResponse({ status: 403, description: 'Not authorized.' })
-  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Not authenticated.',
+    type: ErrorDto,
+  })
+  @ApiResponse({ status: 403, description: 'Not authorized.', type: ErrorDto })
+  @ApiResponse({ status: 404, description: 'User not found.', type: ErrorDto })
   @ApiBearerAuth()
   @Auth(UserRole.ADMIN)
   @Get(':id')
@@ -51,8 +55,12 @@ export class UsersController {
     description: 'The users have been successfully found.',
     type: ListUserResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Not authenticated.' })
-  @ApiResponse({ status: 403, description: 'Not authorized.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Not authenticated.',
+    type: ErrorDto,
+  })
+  @ApiResponse({ status: 403, description: 'Not authorized.', type: ErrorDto })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'order', required: false, enum: Order })
@@ -69,9 +77,13 @@ export class UsersController {
     description: 'User Profile Updated',
     type: UserResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Get('profile/info-user')
   @Auth()
@@ -81,10 +93,14 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Get User' })
   @ApiResponse({ status: 200, description: 'User info', type: UserResponseDto })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })
+  @ApiResponse({ status: 404, description: 'User not found', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Patch('profile')
   @Auth()

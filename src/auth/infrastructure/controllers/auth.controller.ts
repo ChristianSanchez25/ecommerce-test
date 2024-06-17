@@ -5,7 +5,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { MongoIdPipe } from '../../../common';
+import { ErrorDto, MongoIdPipe } from '../../../common';
 import { UserResponseDto } from '../../../users/application/dtos';
 import { UserRole } from '../../../users/domain/enums';
 import {
@@ -42,8 +42,12 @@ export class AuthController {
     description: 'User created successfully',
     type: RegisterResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @Post('register')
   async register(
     @Body() registerUserDto: RegisterUserDto,
@@ -57,9 +61,13 @@ export class AuthController {
     description: 'User logged successfully',
     type: LoginResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto): Promise<LoginResponseDto> {
     return await this.loginUseCase.execute(loginUserDto);
@@ -71,9 +79,13 @@ export class AuthController {
     description: 'Token renewed successfully',
     type: LoginResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Auth()
   @Get('renew-token')
@@ -86,9 +98,13 @@ export class AuthController {
     status: 200,
     description: 'Password changed successfully',
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Auth()
   @Patch('change-password')
@@ -103,11 +119,20 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully updated.',
+    type: UserResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Not authenticated.' })
-  @ApiResponse({ status: 403, description: 'Not authorized.' })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Not authenticated.',
+    type: ErrorDto,
+  })
+  @ApiResponse({ status: 403, description: 'Not authorized.', type: ErrorDto })
+  @ApiResponse({ status: 404, description: 'User not found.', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error.',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Auth(UserRole.ADMIN)
   @Patch(':id')
