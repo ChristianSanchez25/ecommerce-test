@@ -10,6 +10,9 @@ export class ProductResponseDto {
   @ApiProperty({ example: 'Product name', description: 'Product name' })
   name: string;
 
+  @ApiProperty({ example: 'ABC123', description: 'Product code' })
+  productCode: string;
+
   @ApiProperty({
     example: 'Product description',
     description: 'Product description',

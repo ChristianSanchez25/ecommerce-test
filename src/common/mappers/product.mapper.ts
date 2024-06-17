@@ -6,6 +6,7 @@ export class ProductMapper {
     return new Product(
       productDocument._id.toString(),
       productDocument.name,
+      productDocument.productCode,
       productDocument.description,
       productDocument.price,
       productDocument.quantity,

@@ -23,11 +23,15 @@ export class ProductRepository implements IProductRepository {
 
   async create(data: CreateProductDto): Promise<Product> {
     try {
-      if (await this.productModel.exists({ name: data.name })) {
+      const product = await this.productModel.exists({
+        productCode: data.productCode,
+      });
+      if (product) {
         throw new BadRequestException(
-          `Product with name ${data.name} already exists`,
+          `Product with code: ${data.productCode} already exists`,
         );
       }
+
       const productSchema = new this.productModel(data);
       await productSchema.save();
       return ProductMapper.toEntity(productSchema);

@@ -11,8 +11,6 @@ export class Product {
   @Prop({
     type: String,
     required: true,
-    unique: true,
-    index: true,
   })
   name: string;
 
@@ -34,6 +32,13 @@ export class Product {
     index: true,
   })
   available: boolean;
+
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+  })
+  productCode: string;
 
   @Prop({
     type: Number,

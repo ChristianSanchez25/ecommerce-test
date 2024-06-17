@@ -10,6 +10,13 @@ import {
 } from 'class-validator';
 
 export class CreateProductDto {
+  @ApiProperty({ example: 'ABC123', description: 'Product code' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(255)
+  productCode: string;
+
   @ApiProperty({ example: 'Product name', description: 'Product name' })
   @IsString()
   @IsNotEmpty()

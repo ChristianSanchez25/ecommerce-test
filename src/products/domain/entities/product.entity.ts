@@ -1,6 +1,7 @@
 export class Product {
   id: string;
   name: string;
+  productCode: string;
   description: string;
   price: number;
   quantity: number;
@@ -10,6 +11,7 @@ export class Product {
   constructor(
     id: string,
     name: string,
+    productCode: string,
     description: string,
     price: number,
     quantity: number,
@@ -18,6 +20,7 @@ export class Product {
   ) {
     this.id = id;
     this.name = name;
+    this.productCode = productCode;
     this.description = description;
     this.price = price;
     this.quantity = quantity;
@@ -28,6 +31,7 @@ export class Product {
   static create(
     id: string,
     name: string,
+    productCode: string,
     description: string,
     price: number,
     quantity: number,
@@ -37,6 +41,7 @@ export class Product {
     return new Product(
       id,
       name,
+      productCode,
       description,
       price,
       quantity,
