@@ -1,9 +1,14 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import { UpdateProfileDto } from 'src/users/application/dtos';
 import { RegisterUserDto, UpdateUserDto } from '../../../auth/application/dtos';
-import { Order, PaginationDto, UserMapper } from '../../../common';
+import {
+  DatabaseException,
+  Order,
+  PaginationDto,
+  UserMapper,
+} from '../../../common';
 import { IUserRepository } from '../../application/interfaces';
 import { User } from '../../domain/entities';
 import { UserDocument } from '../schemas/user.schema';
@@ -23,7 +28,7 @@ export class UserRepository implements IUserRepository {
       await userSchema.save();
       return UserMapper.toEntity(userSchema);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_CREATE_USER');
+      this.handleDatabaseError(error, 'ERROR_CREATE_USER');
     }
   }
 
@@ -39,7 +44,7 @@ export class UserRepository implements IUserRepository {
       }
       return UserMapper.toEntity(user);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_FIND_USER_BY_EMAIL');
+      this.handleDatabaseError(error, 'ERROR_FIND_USER_BY_EMAIL');
     }
   }
 
@@ -51,7 +56,7 @@ export class UserRepository implements IUserRepository {
       }
       return UserMapper.toEntity(user);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_FIND_USER_BY_ID');
+      this.handleDatabaseError(error, 'ERROR_FIND_USER_BY_ID');
     }
   }
   async updateProfile(id: string, data: UpdateProfileDto): Promise<User> {
@@ -72,10 +77,7 @@ export class UserRepository implements IUserRepository {
       }
       return UserMapper.toEntity(user);
     } catch (error) {
-      throw new InternalServerErrorException(
-        error,
-        'ERROR_UPDATE_PROFILE_USER',
-      );
+      this.handleDatabaseError(error, 'ERROR_UPDATE_PROFILE_USER');
     }
   }
 
@@ -97,7 +99,7 @@ export class UserRepository implements IUserRepository {
 
       return users.map((user) => UserMapper.toEntity(user));
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_FIND_ALL_USERS');
+      this.handleDatabaseError(error, 'ERROR_FIND_ALL_USERS');
     }
   }
 
@@ -105,7 +107,7 @@ export class UserRepository implements IUserRepository {
     try {
       return this.userModel.countDocuments().exec();
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_TOTAL_USERS');
+      this.handleDatabaseError(error, 'ERROR_TOTAL_USERS');
     }
   }
 
@@ -126,7 +128,7 @@ export class UserRepository implements IUserRepository {
         .exec();
       return UserMapper.toEntity(user);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_UPDATE_USER');
+      this.handleDatabaseError(error, 'ERROR_UPDATE_USER');
     }
   }
 
@@ -148,10 +150,14 @@ export class UserRepository implements IUserRepository {
       }
       return UserMapper.toEntity(user);
     } catch (error) {
-      throw new InternalServerErrorException(
-        error,
-        'ERROR_UPDATE_PASSWORD_USER',
-      );
+      this.handleDatabaseError(error, 'ERROR_UPDATE_PASSWORD_USER');
     }
+  }
+
+  private handleDatabaseError(error: any, errorCode: string): never {
+    if (error instanceof MongooseError) {
+      throw new DatabaseException(error.message, errorCode);
+    }
+    throw new InternalServerErrorException(error.message, errorCode);
   }
 }

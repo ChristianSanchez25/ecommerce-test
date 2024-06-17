@@ -6,8 +6,9 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { LOGGER_SERVICE } from '../constants/common.constants';
-import { IError } from '../interfaces/error.interface';
+import { ErrorDto } from '../dtos/error.dto';
 import { ILogger } from '../interfaces/logger.interface';
 
 @Catch()
@@ -16,59 +17,49 @@ export class AllExceptionFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-    const exceptionMessage =
-      exception instanceof HttpException
-        ? (exception.getResponse() as IError)
-        : { message: (exception as Error).message, code_error: null };
+    let status: number;
+    let responseMessage: any;
 
-    const responseData: IError = {
-      ...{
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      },
-      ...exceptionMessage,
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      responseMessage = exception.getResponse();
+    } else {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      responseMessage = {
+        message: (exception as Error).message,
+        code_error: 'INTERNAL_SERVER_ERROR',
+      };
+    }
+
+    const responseData: ErrorDto = {
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message: responseMessage.message || 'Internal server error',
+      code_error: responseMessage.error || 'INTERNAL_SERVER_ERROR',
     };
 
-    this.logException(
-      request,
-      exceptionMessage.message,
-      exceptionMessage.code_error,
-      status,
-      exception,
-    );
+    this.logException(request, responseData);
 
     response.status(status).json(responseData);
   }
 
-  private logException(
-    request: any,
-    message: string,
-    code_error: string,
-    status: number,
-    exception: any,
-  ) {
-    if (status === 500) {
+  private logException(request: Request, errorData: ErrorDto) {
+    const { method, url } = request;
+    const { statusCode, message, code_error } = errorData;
+
+    if (statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
-        `End Request for ${request.path}`,
-        `method=${request.method} status=${status} code_error=${
-          code_error ? code_error : null
-        } message=${message ? message : null}`,
-        status >= 500 ? exception.stack : '',
+        `End Request for ${url}`,
+        `method=${method} status=${statusCode} code_error=${code_error} message=${message}`,
       );
     } else {
       this.logger.warn(
-        `End Request for ${request.path}`,
-        `method=${request.method} status=${status} code_error=${
-          code_error ? code_error : null
-        } message=${message ? message : null}`,
+        `End Request for ${url}`,
+        `method=${method} status=${statusCode} code_error=${code_error} message=${message}`,
       );
     }
   }

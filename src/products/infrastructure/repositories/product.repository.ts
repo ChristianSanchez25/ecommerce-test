@@ -3,8 +3,13 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Order, PaginationDto, ProductMapper } from '../../../common';
+import { Model, MongooseError } from 'mongoose';
+import {
+  DatabaseException,
+  Order,
+  PaginationDto,
+  ProductMapper,
+} from '../../../common';
 import { CreateProductDto } from '../../application/dtos';
 import { IProductRepository } from '../../application/interfaces';
 import { Product } from '../../domain/entities';
@@ -30,7 +35,7 @@ export class ProductRepository implements IProductRepository {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new InternalServerErrorException(error, 'ERROR_CREATE_PRODUCT');
+      this.handleDatabaseError(error, 'ERROR_CREATE_PRODUCT');
     }
   }
 
@@ -47,7 +52,7 @@ export class ProductRepository implements IProductRepository {
       }
       return ProductMapper.toEntity(product);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_FIND_PRODUCT_BY_ID');
+      this.handleDatabaseError(error, 'ERROR_FIND_PRODUCT_BY_ID');
     }
   }
 
@@ -68,7 +73,7 @@ export class ProductRepository implements IProductRepository {
         .exec();
       return products.map(ProductMapper.toEntity);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_FIND_PRODUCTS');
+      this.handleDatabaseError(error, 'ERROR_FIND_PRODUCTS');
     }
   }
 
@@ -84,7 +89,7 @@ export class ProductRepository implements IProductRepository {
       }
       return ProductMapper.toEntity(productUpdated);
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_UPDATE_PRODUCT');
+      this.handleDatabaseError(error, 'ERROR_UPDATE_PRODUCT');
     }
   }
 
@@ -92,7 +97,7 @@ export class ProductRepository implements IProductRepository {
     try {
       return this.productModel.countDocuments({ available: true }).exec();
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_TOTAL_PRODUCTS');
+      this.handleDatabaseError(error, 'ERROR_TOTAL_PRODUCTS');
     }
   }
 
@@ -103,7 +108,14 @@ export class ProductRepository implements IProductRepository {
         .exec();
       return true;
     } catch (error) {
-      throw new InternalServerErrorException(error, 'ERROR_DELETE_PRODUCT');
+      this.handleDatabaseError(error, 'ERROR_DELETE_PRODUCT');
     }
+  }
+
+  private handleDatabaseError(error: any, errorCode: string): never {
+    if (error instanceof MongooseError) {
+      throw new DatabaseException(error.message, errorCode);
+    }
+    throw new InternalServerErrorException(error.message, errorCode);
   }
 }

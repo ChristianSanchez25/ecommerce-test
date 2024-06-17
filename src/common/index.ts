@@ -5,6 +5,7 @@ export * from './dtos/error.dto';
 export * from './dtos/metadata.dto';
 export * from './dtos/pagination.dto';
 export * from './enums/order.enum';
+export * from './exceptions/database.exception';
 export * from './filters/exception.filter';
 export * from './interceptors/logger.interceptor';
 export * from './interfaces/error.interface';
