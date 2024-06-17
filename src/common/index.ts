@@ -11,6 +11,7 @@ export * from './interceptors/logger.interceptor';
 export * from './interfaces/error.interface';
 export * from './interfaces/logger.interface';
 export * from './mappers/mapper';
+export * from './mappers/order.mapper';
 export * from './mappers/product.mapper';
 export * from './mappers/user.mapper';
 export * from './pipes/mongo-id.pipe';
