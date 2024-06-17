@@ -112,6 +112,26 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
+  async validateProducts(ids: string[]): Promise<Product[]> {
+    try {
+      const products = await this.productModel
+        .find({
+          _id: { $in: ids },
+          available: true,
+        })
+        .exec();
+      if (products.length !== ids.length) {
+        throw new BadRequestException(`Some products are not available`);
+      }
+      return products.map(ProductMapper.toEntity);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      this.handleDatabaseError(error, 'ERROR_VALIDATE_PRODUCTS');
+    }
+  }
+
   private handleDatabaseError(error: any, errorCode: string): never {
     if (error instanceof MongooseError) {
       throw new DatabaseException(error.message, errorCode);

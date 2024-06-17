@@ -15,6 +15,14 @@ import { ILogger } from '../interfaces/logger.interface';
 export class AllExceptionFilter implements ExceptionFilter {
   constructor(@Inject(LOGGER_SERVICE) private readonly logger: ILogger) {}
 
+  readonly codeErrorMap = {
+    400: 'BAD_REQUEST',
+    401: 'UNAUTHORIZED',
+    403: 'FORBIDDEN',
+    404: 'NOT_FOUND',
+    500: 'INTERNAL_SERVER_ERROR',
+  };
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -33,13 +41,12 @@ export class AllExceptionFilter implements ExceptionFilter {
         code_error: 'INTERNAL_SERVER_ERROR',
       };
     }
-
     const responseData: ErrorDto = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       message: responseMessage.message || 'Internal server error',
-      code_error: responseMessage.error || 'INTERNAL_SERVER_ERROR',
+      code_error: this.codeErrorMap[status] || 'INTERNAL_SERVER_ERROR',
     };
 
     this.logException(request, responseData);
