@@ -36,16 +36,26 @@ export class UsersController {
     type: UserResponseDto,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: ErrorDto,
+  })
+  @ApiResponse({
     status: 401,
     description: 'Not authenticated.',
     type: ErrorDto,
   })
   @ApiResponse({ status: 403, description: 'Not authorized.', type: ErrorDto })
   @ApiResponse({ status: 404, description: 'User not found.', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiBearerAuth()
   @Auth(UserRole.ADMIN)
   @Get(':id')
-  async async(@Param('id', MongoIdPipe) id: string) {
+  async findOne(@Param('id', MongoIdPipe) id: string) {
     return await this.getUserUseCase.execute(id);
   }
 
@@ -56,11 +66,21 @@ export class UsersController {
     type: ListUserResponseDto,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: ErrorDto,
+  })
+  @ApiResponse({
     status: 401,
     description: 'Not authenticated.',
     type: ErrorDto,
   })
   @ApiResponse({ status: 403, description: 'Not authorized.', type: ErrorDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'order', required: false, enum: Order })
