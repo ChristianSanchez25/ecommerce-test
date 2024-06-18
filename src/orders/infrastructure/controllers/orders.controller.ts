@@ -14,9 +14,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserResponseDto } from 'src/users/application/dtos';
 import { Auth, GetUser } from '../../../auth/infrastructure/decorators';
 import { ErrorDto, MongoIdPipe, Order } from '../../../common';
+import { UserResponseDto } from '../../../users/application/dtos';
 import {
   ChangeOrderStatusDto,
   CreateOrderDto,
