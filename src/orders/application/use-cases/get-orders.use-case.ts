@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { OrderMapper } from '../../../common';
 import { SERVICE_ORDER } from '../../domain/constants';
 import { ListOrderResponseDto, PaginationOrderDto } from '../dtos';
 import { IOrderService } from '../interfaces';
@@ -17,7 +16,7 @@ export class GetOrdersUseCase {
     const total = await this.orderService.totalOrders(pagintation.status);
     const { limit = 10, page = 1 } = pagintation;
     return {
-      orders: orders.map((order) => OrderMapper.toDto(order)),
+      orders,
       metadata: {
         total,
         page,

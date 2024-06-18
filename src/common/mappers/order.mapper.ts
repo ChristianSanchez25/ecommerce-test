@@ -1,37 +1,22 @@
-import { OrderResponseDto } from '../../orders/application/dtos';
-import { Order } from '../../orders/domain/entities';
-import { OrderDocument } from '../../orders/infrastructure/schemas';
+import { OrderResponseDto } from 'src/orders/application/dtos';
+import { OrderDocument } from 'src/orders/infrastructure/schemas';
 
 export class OrderMapper {
-  static toEntity(orderDocument: OrderDocument): Order {
-    return new Order(
-      orderDocument._id.toString(),
-      orderDocument.user.toString(),
-      orderDocument.items.map((item) => ({
-        product: item.product.toString(),
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      orderDocument.status,
-      orderDocument.totalAmount,
-      orderDocument.totalItems,
-      orderDocument.createdAt,
-      orderDocument.updatedAt,
-    );
-  }
-
-  static toDto(order: Order): OrderResponseDto {
+  static toDto(order: OrderDocument): OrderResponseDto {
     return {
-      id: order.id,
-      userId: order.user,
+      id: order._id.toString(),
+      userId: order.userId.toString(),
+      userEmail: order.user?.email,
       items: order.items.map((item) => ({
-        productId: item.product,
+        productId: item.productId.toString(),
+        productName: item.product?.name,
+        available: item.product?.available,
         quantity: item.quantity,
         price: item.price,
       })),
+      status: order.status,
       totalAmount: order.totalAmount,
       totalItems: order.totalItems,
-      status: order.status,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };

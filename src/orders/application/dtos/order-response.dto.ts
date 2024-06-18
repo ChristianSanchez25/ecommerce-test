@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderItemDto } from './order-item.dto';
+import { OrderItemResponseDto } from './order-item-response.dto';
 
 export class OrderResponseDto {
   @ApiProperty({
@@ -14,8 +14,15 @@ export class OrderResponseDto {
   })
   userId: string;
 
-  @ApiProperty({ description: 'Items', type: OrderItemDto, isArray: true })
-  items: OrderItemDto[];
+  @ApiProperty({ example: 'User email', description: 'johndoe@gmail.com' })
+  userEmail?: string;
+
+  @ApiProperty({
+    description: 'Items',
+    type: OrderItemResponseDto,
+    isArray: true,
+  })
+  items: OrderItemResponseDto[];
 
   @ApiProperty({ example: 'pending', description: 'Order status' })
   status: string;

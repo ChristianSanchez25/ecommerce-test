@@ -1,12 +1,14 @@
-import { Order } from '../../domain/entities';
-import { CreateOrderDto, PaginationOrderDto } from '../dtos';
+import { OrderStatus } from '../../domain/enums';
+import { CreateOrderDto, OrderResponseDto, PaginationOrderDto } from '../dtos';
 
 export interface IOrderService {
-  createOrder(order: CreateOrderDto, userId: string): Promise<Order>;
-  findAllOrders(pagination: PaginationOrderDto): Promise<Order[]>;
+  createOrder(order: CreateOrderDto, userId: string): Promise<OrderResponseDto>;
+  findAllOrders(pagination: PaginationOrderDto): Promise<OrderResponseDto[]>;
   findOrdersByUser(
     userId: string,
     pagination: PaginationOrderDto,
-  ): Promise<Order[]>;
+  ): Promise<OrderResponseDto[]>;
+  findOrderById(id: string): Promise<OrderResponseDto>;
+  updateOrderStatus(id: string, status: OrderStatus): Promise<OrderResponseDto>;
   totalOrders(status?: string): Promise<number>;
 }

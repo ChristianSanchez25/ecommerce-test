@@ -11,7 +11,7 @@ import { Product } from '../../../products/domain/entities';
 import { REPOSITORY_ORDER } from '../../domain/constants';
 import { Order } from '../../domain/entities';
 import { OrderStatus } from '../../domain/enums';
-import { CreateOrderDto, PaginationOrderDto } from '../dtos';
+import { CreateOrderDto, OrderResponseDto, PaginationOrderDto } from '../dtos';
 import { IOrderRepository, IOrderService } from '../interfaces';
 
 @Injectable()
@@ -27,8 +27,13 @@ export class OrderService implements IOrderService {
   async createOrder(
     createOrder: CreateOrderDto,
     userId: string,
-  ): Promise<Order> {
+  ): Promise<OrderResponseDto> {
     const productsIds = createOrder.items.map((item) => item.productId);
+    const productsIdsSet = new Set(productsIds);
+    if (productsIds.length !== productsIdsSet.size) {
+      this.logger.warn('OrderService', 'Duplicate products in order creation');
+      throw new BadRequestException('Duplicate products in order creation');
+    }
     const products = await this.productRepository.validateProducts(productsIds);
 
     const productsMap = new Map(
@@ -65,10 +70,7 @@ export class OrderService implements IOrderService {
       ),
     );
 
-    for (const item of createOrder.items) {
-      const product = productsMap.get(item.productId);
-      await this.updateProductsQuantity(product, item.quantity);
-    }
+    await this.decreaseProductsQuantities(createOrder.items, productsMap);
 
     this.logger.log('OrderService', `Order with id ${order.id} created`);
     return order;
@@ -86,22 +88,24 @@ export class OrderService implements IOrderService {
     }
   }
 
-  private async updateProductsQuantity(
-    product: Product,
-    quantity: number,
-  ): Promise<void> {
-    product.quantity -= quantity;
-    this.productRepository.update(product.id, product);
+  async findOrderById(id: string): Promise<OrderResponseDto> {
+    const order = await this.orderRepository.findById(id);
+    if (!order) {
+      throw new NotFoundException(`Order with id ${id} not found`);
+    }
+    return order;
   }
 
-  async findAllOrders(pagination: PaginationOrderDto): Promise<Order[]> {
+  async findAllOrders(
+    pagination: PaginationOrderDto,
+  ): Promise<OrderResponseDto[]> {
     return await this.orderRepository.findAll(pagination);
   }
 
   async findOrdersByUser(
     userId: string,
     pagination: PaginationOrderDto,
-  ): Promise<Order[]> {
+  ): Promise<OrderResponseDto[]> {
     const orders = await this.orderRepository.findByUser(userId, pagination);
     if (orders.length === 0) {
       throw new NotFoundException(
@@ -111,7 +115,70 @@ export class OrderService implements IOrderService {
     return orders;
   }
 
+  async updateOrderStatus(
+    id: string,
+    status: OrderStatus,
+  ): Promise<OrderResponseDto> {
+    const order = await this.findOrderById(id);
+    const previousStatus = order.status;
+    if (previousStatus === status) {
+      this.logger.warn(
+        'OrderService',
+        `Order with id ${id} already has status ${status}`,
+      );
+      throw new BadRequestException(
+        `Order with id ${id} already has status ${status}`,
+      );
+    }
+    const updatedOrder = await this.orderRepository.updateStatus(id, status);
+
+    if (previousStatus === OrderStatus.CANCELLED) {
+      await this.decreaseProductsQuantities(updatedOrder.items, new Map());
+    }
+    if (status === OrderStatus.CANCELLED) {
+      await this.increaseProductsQuantities(updatedOrder.items);
+    }
+    this.logger.log(
+      'OrderService',
+      `Order with id ${id} updated to status ${status}`,
+    );
+    return updatedOrder;
+  }
+
   async totalOrders(status?: string): Promise<number> {
     return await this.orderRepository.totalOrders(status);
+  }
+
+  private async updateProductQuantity(
+    product: Product,
+    quantity: number,
+  ): Promise<void> {
+    product.quantity += quantity;
+    await this.productRepository.update(product.id, product);
+  }
+
+  private async decreaseProductsQuantities(
+    items: Array<{ productId: string; quantity: number }>,
+    productsMap: Map<string, Product>,
+  ): Promise<void> {
+    for (const item of items) {
+      let product = productsMap.get(item.productId);
+      if (!product) {
+        product = await this.productRepository.findById(item.productId);
+        if (!product) continue;
+      }
+      await this.updateProductQuantity(product, -item.quantity);
+    }
+  }
+
+  private async increaseProductsQuantities(
+    items: Array<{ productId: string; quantity: number }>,
+  ): Promise<void> {
+    for (const item of items) {
+      const product = await this.productRepository.findById(item.productId);
+      if (product) {
+        await this.updateProductQuantity(product, item.quantity);
+      }
+    }
   }
 }

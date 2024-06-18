@@ -5,7 +5,9 @@ import { CommonModule } from '../common';
 import { ProductsModule } from '../products/products.module';
 import { OrderService } from './application/services/order.service';
 import {
+  ChangeOrderStatusUseCase,
   CreateOrderUseCase,
+  GetOrderUseCase,
   GetOrdersByUserUseCase,
   GetOrdersUseCase,
 } from './application/use-cases';
@@ -27,7 +29,9 @@ import { OrderSchema } from './infrastructure/schemas/order.schema';
     OrderRepository,
     CreateOrderUseCase,
     GetOrdersUseCase,
+    GetOrderUseCase,
     GetOrdersByUserUseCase,
+    ChangeOrderStatusUseCase,
     {
       provide: REPOSITORY_ORDER,
       useClass: OrderRepository,
