@@ -13,6 +13,7 @@ interface EnvVars {
   DB_PORT: number;
   DB_HOST: string;
   JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
 }
 
 const envsSchema = joi
@@ -26,6 +27,7 @@ const envsSchema = joi
     DB_PORT: joi.number().required(),
     DB_HOST: joi.string().required(),
     JWT_SECRET: joi.string().required(),
+    JWT_EXPIRES_IN: joi.string().required(),
   })
   .unknown(true);
 
@@ -54,5 +56,6 @@ export const envs = {
   },
   jwt: {
     secret: envVars.JWT_SECRET,
+    expiresIn: envVars.JWT_EXPIRES_IN,
   },
 };
