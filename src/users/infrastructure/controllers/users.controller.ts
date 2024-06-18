@@ -91,7 +91,7 @@ export class UsersController {
     return await this.getUsersUseCase.execute(paginationDto);
   }
 
-  @ApiOperation({ summary: 'Update profile user' })
+  @ApiOperation({ summary: 'Profile user' })
   @ApiResponse({
     status: 200,
     description: 'User Profile Updated',
@@ -111,7 +111,7 @@ export class UsersController {
     return user;
   }
 
-  @ApiOperation({ summary: 'Get User' })
+  @ApiOperation({ summary: 'Update profile user' })
   @ApiResponse({ status: 200, description: 'User info', type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Bad request', type: ErrorDto })
   @ApiResponse({ status: 401, description: 'Unauthorized', type: ErrorDto })

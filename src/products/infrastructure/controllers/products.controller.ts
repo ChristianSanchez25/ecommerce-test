@@ -102,7 +102,7 @@ export class ProductsController {
     return await this.getProductsUseCase.execute(paginationDto);
   }
 
-  @ApiOperation({ summary: 'Get Product' })
+  @ApiOperation({ summary: 'Get Product by Id' })
   @ApiResponse({
     status: 200,
     description: 'The product have been successfully found.',
