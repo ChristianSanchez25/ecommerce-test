@@ -43,5 +43,5 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
           git commit -m 'Format code with npm run format' || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${{ secrets.ACTIONS_PAT }}@github.com/ChristianSanchez25/ecommerce-test.git
         if: always()
