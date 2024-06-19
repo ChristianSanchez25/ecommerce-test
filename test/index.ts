@@ -1,3 +1,6 @@
+export { createMockAuthService } from './mocks/auth/auth.service.mock';
+export { createMockEncryptService } from './mocks/base/encrypt.mock';
+export { createMockJwtService } from './mocks/base/jwt.mock';
 export { createMockLogger } from './mocks/base/logger.mock';
 export { productsMock } from './mocks/products/product.mock';
 export { mockProductModel } from './mocks/products/product.model.mock';
