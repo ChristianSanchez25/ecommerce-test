@@ -5,8 +5,7 @@ interface EnvVars {
   PORT: number;
   STAGE: string;
   VERSION: string;
-  RABBITMQ_HOST: string;
-  RABBITMQ_PORT: number;
+  SEED: boolean;
   DB_NAME: string;
   DB_PASS: string;
   DB_USER: string;
@@ -21,6 +20,7 @@ const envsSchema = joi
     PORT: joi.number().required(),
     STAGE: joi.string().required(),
     VERSION: joi.string().required(),
+    SEED: joi.boolean().required(),
     DB_NAME: joi.string().required(),
     DB_PASS: joi.string().required(),
     DB_USER: joi.string().required(),
@@ -45,6 +45,7 @@ export const envs = {
   port: envVars.PORT,
   stage: envVars.STAGE,
   version: envVars.VERSION,
+  seed: envVars.SEED,
   mongo: {
     auth: {
       name: envVars.DB_NAME,

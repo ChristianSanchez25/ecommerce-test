@@ -6,64 +6,93 @@
 
 ## Description
 
-This is a simple e-commerce API that allows users to create, read, update and delete products and categories. It also allows users to add products to a cart and checkout.
+This is a simple e-commerce API that allows users to create, read, update, and delete products and orders. It also includes user authentication with JWT, product inventory management, and customer order processing.
+
+### Key Features
+
+- **User Authentication**: Secure user registration and login using JWT-based authentication and authorization.
+- **CRUD Operations for Products**: Endpoints for creating, reading, updating, and deleting products.
+- **Order Management**: Allow authenticated users to place orders, manage order history, and capture essential order details.
+
+## ℹ️ Prerequisites
+
+- [Node.js](https://nodejs.org/es/download/)
+- [NestJS](https://docs.nestjs.com/)
+- [MongoDB](https://www.mongodb.com/)
+- [Docker](https://www.docker.com/products/docker-desktop)
 
 ## ⚙️ Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
 
-```bash
-$ git clone https://github.com/ChristianSanchez25/ecommerce-test.git
-```
+   ```bash
+   $ git clone https://github.com/ChristianSanchez25/ecommerce-test.git
+   ```
 
-2. Install the dependencies:
+2. **Install the dependencies:**
 
-```bash
-$ npm install
-```
+   ```bash
+   $ npm install
+   ```
 
-3. Clone the `.env.template` file and rename it to `.env`
+3. **Clone the `.env.template` file and rename it to `.env`:**
 
-4. Change the values of the environment variables in the `.env` file
+   ```bash
+   $ cp .env.template .env
+   ```
 
-5. Run the application:
+4. **Change the values of the environment variables in the `.env` file**
 
-```bash
-# development
-$ npm run start
+5. **Run the application:**
 
-# watch mode
-$ npm run start:dev
+   ```bash
+   # development
+   $ npm run start
 
-# production mode
-$ npm run start:prod
-```
+   # watch mode
+   $ npm run start:dev
+
+   # production mode
+   $ npm run start:prod
+   ```
+
+6. **Access the API documentation:**
+
+   Open your browser and navigate to `http://localhost:PORT/docs` to view the API documentation.
 
 ### 🐋 Docker
 
-This project has a `Dockerfile` and a `docker-compose.yml` file that allows you to run the application in a container.
+This project includes a `dockerfile` and a `docker-compose.yml` file that allows you to run the application in a container.
 
-1. Copy the `.env.template` file and rename it to `.env`
+1. **Clone the `.env.template` file and rename it to `.env`:**
 
-2. Build the image with database:
+   ```bash
+   $ cp .env.template .env
+   ```
 
-```bash
-$ docker-compose up --build
-```
+2. **Build and run the containers with Docker Compose:**
 
-3. Run the container:
+   ```bash
+   $ docker-compose up --build
+   ```
 
-```bash
-$ docker-compose up -d
-```
+3. **Run the containers in detached mode:**
 
-If you want to stop the container, run the following command:
+   ```bash
+   $ docker-compose up -d
+   ```
 
-```bash
-$ docker-compose down
-```
+4. **Stop the containers:**
 
-## Test
+   ```bash
+   $ docker-compose down
+   ```
+
+5. **Access the API documentation:**
+
+   Open your browser and navigate to `http://localhost:PORT/docs` to view the API documentation.
+
+## 🧪 Test
 
 ```bash
 # unit tests
@@ -76,16 +105,23 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## 📝 API Documentation
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The API documentation is generated using Swagger. You can access it by navigating to `http://localhost:PORT/docs`.
 
-## Stay in touch
+## 📚 Technologies
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- [NestJS](https://nestjs.com/)
+- [MongoDB](https://www.mongodb.com/)
+- [Swagger](https://swagger.io/)
+- [Docker](https://www.docker.com/)
+- [Jest](https://jestjs.io/)
 
-## License
+## 📄 License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📧 Contact
+
+- [Christian Sanchez](https://github.com/ChristianSanchez25)
+- [Email](mailto:christianjsanchezr@gmail.com)

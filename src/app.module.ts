@@ -24,7 +24,7 @@ import { UsersModule } from './users/users.module';
 export class AppModule {}
 
 function getAdditionalModules() {
-  if (envs.stage === 'prod') {
+  if (!envs.seed) {
     return [];
   }
   return [SeedModule];
