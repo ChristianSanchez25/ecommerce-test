@@ -130,11 +130,17 @@ export class OrderService implements IOrderService {
         `Order with id ${id} already has status ${status}`,
       );
     }
+    if (previousStatus === OrderStatus.CANCELLED) {
+      this.logger.warn(
+        'OrderService',
+        `Order with id ${id} has status CANCELLED and cannot be updated`,
+      );
+      throw new BadRequestException(
+        `Order with id ${id} has status CANCELLED and cannot be updated`,
+      );
+    }
     const updatedOrder = await this.orderRepository.updateStatus(id, status);
 
-    if (previousStatus === OrderStatus.CANCELLED) {
-      await this.decreaseProductsQuantities(updatedOrder.items, new Map());
-    }
     if (status === OrderStatus.CANCELLED) {
       await this.increaseProductsQuantities(updatedOrder.items);
     }
@@ -163,10 +169,6 @@ export class OrderService implements IOrderService {
   ): Promise<void> {
     for (const item of items) {
       let product = productsMap.get(item.productId);
-      if (!product) {
-        product = await this.productRepository.findById(item.productId);
-        if (!product) continue;
-      }
       await this.updateProductQuantity(product, -item.quantity);
     }
   }
