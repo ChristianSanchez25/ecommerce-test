@@ -70,10 +70,10 @@ This project includes a `dockerfile` and a `docker-compose.yml` file that allows
    $ cp .env.template .env
    ```
 
-2. **Build and run the containers with Docker Compose:**
+2. **Build the containers with Docker Compose:**
 
    ```bash
-   $ docker-compose up --build
+   $ docker-compose build
    ```
 
 3. **Run the containers in detached mode:**
