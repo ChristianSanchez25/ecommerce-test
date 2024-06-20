@@ -87,11 +87,13 @@ export class OrderRepository implements IOrderRepository {
       page = 1,
       sort = 'updatedAt',
       order = OrderEnum.DESC,
+      status,
     } = pagination;
     const sortOrder = order === OrderEnum.ASC ? 1 : -1;
+    const findQuery = status ? { userId: userId, status } : { userId: userId };
     try {
       const orders = await this.orderModel
-        .find({ userId })
+        .find(findQuery)
         .populate('items.product')
         .sort({ [sort]: sortOrder })
         .skip((page - 1) * limit)

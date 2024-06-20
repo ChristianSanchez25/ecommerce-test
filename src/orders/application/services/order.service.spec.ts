@@ -2,12 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   createMockLogger,
   createMockProductRepository,
+  createMockUserRepository,
   createOrderRepositoryMock,
   ordersMock,
   productsMock,
 } from '../../../../test';
 import { IProductRepository } from '../../../products/application/interfaces';
 import { REPOSITORY_PRODUCT } from '../../../products/domain/constants';
+import { IUserRepository } from '../../../users/application/interfaces';
+import { REPOSITORY_USER } from '../../../users/domain/constants';
 import { REPOSITORY_ORDER } from '../../domain/constants';
 import { OrderStatus } from '../../domain/enums';
 import { CreateOrderDto, PaginationOrderDto } from '../dtos';
@@ -19,6 +22,7 @@ describe('OrderService', () => {
   let orderService: OrderService;
   let productRepository: IProductRepository;
   let orderRepository: IOrderRepository;
+  let userRepository: IUserRepository;
   let logger: ILogger;
 
   beforeEach(async () => {
@@ -37,6 +41,10 @@ describe('OrderService', () => {
           provide: LOGGER_SERVICE,
           useValue: createMockLogger(),
         },
+        {
+          provide: REPOSITORY_USER,
+          useValue: createMockUserRepository(),
+        },
       ],
     }).compile();
 
@@ -44,6 +52,7 @@ describe('OrderService', () => {
     productRepository = module.get<IProductRepository>(REPOSITORY_PRODUCT);
     orderRepository = module.get<IOrderRepository>(REPOSITORY_ORDER);
     logger = module.get<ILogger>(LOGGER_SERVICE);
+    userRepository = module.get<IUserRepository>(REPOSITORY_USER);
   });
 
   it('should be defined', () => {
@@ -143,6 +152,46 @@ describe('OrderService', () => {
           userId,
           pagination,
         );
+      });
+
+      it('should throw an error if user does not exist', async () => {
+        orderRepository.findByUser = jest.fn().mockResolvedValue([]);
+        userRepository.findById = jest.fn().mockResolvedValue(null);
+
+        try {
+          await orderService.findOrdersByUser('1', {
+            limit: 10,
+            page: 1,
+            status: OrderStatus.PENDING,
+          });
+        } catch (error) {
+          expect(logger.warn).toHaveBeenCalledWith(
+            'OrderService',
+            'User with id 1 not found',
+          );
+          expect(error.message).toEqual('User with id 1 not found');
+        }
+      });
+
+      it('should return empty array if no orders found but user exists', async () => {
+        orderRepository.findByUser = jest.fn().mockResolvedValue([]);
+        userRepository.findById = jest
+          .fn()
+          .mockResolvedValue({ id: '1', name: 'John Doe' });
+
+        const result = await orderService.findOrdersByUser('1', {
+          limit: 10,
+          page: 1,
+          status: OrderStatus.PENDING,
+        });
+
+        expect(result).toEqual([]);
+        expect(orderRepository.findByUser).toHaveBeenCalledWith('1', {
+          limit: 10,
+          page: 1,
+          status: OrderStatus.PENDING,
+        });
+        expect(userRepository.findById).toHaveBeenCalledWith('1');
       });
 
       it('should throw an error if no orders found for user', async () => {

@@ -8,6 +8,8 @@ import { ILogger, LOGGER_SERVICE } from '../../../common';
 import { IProductRepository } from '../../../products/application/interfaces';
 import { REPOSITORY_PRODUCT } from '../../../products/domain/constants';
 import { Product } from '../../../products/domain/entities';
+import { IUserRepository } from '../../../users/application/interfaces';
+import { REPOSITORY_USER } from '../../../users/domain/constants';
 import { REPOSITORY_ORDER } from '../../domain/constants';
 import { Order } from '../../domain/entities';
 import { OrderStatus } from '../../domain/enums';
@@ -22,6 +24,8 @@ export class OrderService implements IOrderService {
     @Inject(LOGGER_SERVICE) private readonly logger: ILogger,
     @Inject(REPOSITORY_ORDER)
     private readonly orderRepository: IOrderRepository,
+    @Inject(REPOSITORY_USER)
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async createOrder(
@@ -91,6 +95,7 @@ export class OrderService implements IOrderService {
   async findOrderById(id: string): Promise<OrderResponseDto> {
     const order = await this.orderRepository.findById(id);
     if (!order) {
+      this.logger.warn('OrderService', `Order with id ${id} not found`);
       throw new NotFoundException(`Order with id ${id} not found`);
     }
     return order;
@@ -108,9 +113,12 @@ export class OrderService implements IOrderService {
   ): Promise<OrderResponseDto[]> {
     const orders = await this.orderRepository.findByUser(userId, pagination);
     if (orders.length === 0) {
-      throw new NotFoundException(
-        `Orders for user with id ${userId} not found`,
-      );
+      // find user to check if it exists
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        this.logger.warn('OrderService', `User with id ${userId} not found`);
+        throw new NotFoundException(`User with id ${userId} not found`);
+      }
     }
     return orders;
   }

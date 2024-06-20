@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from '../common';
 import { ProductsModule } from '../products/products.module';
+import { UsersModule } from '../users/users.module';
 import { OrderService } from './application/services/order.service';
 import {
   ChangeOrderStatusUseCase,
@@ -21,6 +22,7 @@ import { OrderSchema } from './infrastructure/schemas/order.schema';
   imports: [
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     AuthModule,
+    UsersModule,
     CommonModule,
     ProductsModule,
   ],
