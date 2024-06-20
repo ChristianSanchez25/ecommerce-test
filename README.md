@@ -13,6 +13,7 @@ This is a simple e-commerce API that allows users to create, read, update, and d
 - **User Authentication**: Secure user registration and login using JWT-based authentication and authorization.
 - **CRUD Operations for Products**: Endpoints for creating, reading, updating, and deleting products.
 - **Order Management**: Allow authenticated users to place orders, manage order history, and capture essential order details.
+- **Clean Architecture**: The API is designed following clean architecture principles to ensure scalability and maintainability.
 
 ## ℹ️ Prerequisites
 
@@ -117,9 +118,19 @@ The API documentation is generated using Swagger. You can access it by navigatin
 - [Docker](https://www.docker.com/)
 - [Jest](https://jestjs.io/)
 
-## 📄 License
+## 🛠️ Development Workflow
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Code Formatting**
+
+To ensure consistent code formatting, this project uses Prettier. You can format your code by running:
+
+```bash
+$ npm run format
+```
+
+**GitHub Actions**
+
+This project includes a GitHub Actions workflow that runs the tests on every push to the `main` branch. The configuration for the workflow is stored in the .github/workflows directory.
 
 ## 📧 Contact
 
